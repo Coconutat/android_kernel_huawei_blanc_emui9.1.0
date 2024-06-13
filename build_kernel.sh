@@ -1,6 +1,14 @@
 #!/bin/bash
 #设置环境
 
+# 是否集成KernelSU
+read -p "是否集成KernelSU? (Y/N): " answer
+case $answer in
+    [Yy]* ) curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5;;
+    [Nn]* ) echo "没有执行任何操作。";;
+    * ) echo "无效输入。";;
+esac
+
 # GCC交叉编译器路径
 export PATH=$PATH:$(pwd)/../Compiler/aarch64-linux-android-4.9-pie/bin
 export CROSS_COMPILE=aarch64-linux-android-
@@ -46,9 +54,12 @@ if [ -f out/arch/arm64/boot/Image.gz ]; then
 	cp out/arch/arm64/boot/Image.gz Image.gz
 	./tools/mkbootimg --kernel out/arch/arm64/boot/Image.gz --base 0x0 --cmdline "loglevel=4 initcall_debug=n page_tracker=on unmovable_isolate1=2:192M,3:224M,4:256M printktimer=0xfff0a000,0x534,0x538 androidboot.selinux=enforcing buildvariant=user" --tags_offset 0x07A00000 --kernel_offset 0x00080000 --ramdisk_offset 0x07C00000 --header_version 1 --os_version 9 --os_patch_level 2019-11-01 --output Kirin970_EMUI9_Kernel.img
 	./tools/mkbootimg --kernel out/arch/arm64/boot/Image.gz --base 0x0 --cmdline "loglevel=4 initcall_debug=n page_tracker=on unmovable_isolate1=2:192M,3:224M,4:256M printktimer=0xfff0a000,0x534,0x538 androidboot.selinux=permissive buildvariant=user" --tags_offset 0x07A00000 --kernel_offset 0x00080000 --ramdisk_offset 0x07C00000 --header_version 1 --os_version 9 --os_patch_level 2019-11-01 --output Kirin970_EMUI9_Kernel_PM.img
+
+	git rest --hard
 	exit 0
 else
 	echo " "
 	echo "***Failed!***"
+	git rest --hard
 	exit 0
 fi
